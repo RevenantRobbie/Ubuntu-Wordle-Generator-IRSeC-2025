@@ -4,6 +4,7 @@ WORDLES="Wordles.txt"
 REGIONS="Regions.txt"
 PLAYERS="Players.txt"
 SOLUTIONS="Solutions.txt"
+DISCORD_INTEGRATION="https://discord.com/api/webhooks/1433242319058108511/GpOmC2gG1_ZUbN2o0C4K6DVeOCnBHWX-uADI6oYRDZcIRAaNFl-575B-5Ta9D97JojFu"
 echo "Enter path to region storage location"
 read -p "> " PREDETERMINED_START_PATH
 echo "Path set to $PREDETERMINED_START_PATH"
@@ -12,8 +13,8 @@ WORDLE_LIST=()
 CONNECT_TIMEOUT_SECONDS=5
 
 #secures connections to all hosts
-while IFS= read -r line; do
-    IFS="|" read -ra REGION_INFO <<< "$line"
+while IFS= read -r LINE; do
+    IFS="|" read -ra REGION_INFO <<< "$LINE"
     ssh -o BatchMode=yes -o ConnectTimeout=$CONNECT_TIMEOUT_SECONDS -i "$PREDETERMINED_START_PATH+${REGION_INFO[1]: :-1}" "root@${REGION_INFO[0]}" "true" &>/dev/null
     if [ $? -eq 0 ]; then
         echo "${REGION_INFO[0]} connected successfully."
@@ -25,26 +26,31 @@ while IFS= read -r line; do
 done < "$REGIONS"
 
 #generates wordles for each player
-while IFS= read -r Player;do
-    PlayerList+=("${Player: :-1}")
-    LineCount=$(wc -l < $Wordles)
-    RandomNum=$((RANDOM % $LineCount + 1))
-    Wordle=$(shuf -n 1 $Wordles)
-    while [[ " ${WordleList[*]} " =~ " $Wordle " ]]; do
-        Wordle=$(shuf -n 1 $Wordles)
+while IFS= read -r PLAYER;do
+    PLAYER_LIST+=("${PLAYER: :-1}")
+    LINE_COUNT=$(wc -l < $WORDLES)
+    RANDOM_NUM=$((RANDOM % $LINE_COUNT + 1))
+    WORDLE=$(shuf -n 1 $WORDLES)
+    while [[ " ${WORDLE_LIST[*]} " =~ " $WORDLE " ]]; do
+        WORDLE=$(shuf -n 1 $WORDLES)
     done
-    WordleList+="$Wordle"
-done < "$Players"
+    WORDLE_LIST+="$WORDLE"
+done < "$PLAYERS"
 
+> "$SOLUTIONS"
+echo "$(date)" >> "$SOLUTIONS"
+while IFS= read -r LINE; do
+    IFS="|" read -ra REGION_INFO <<< "$LINE"
+    echo "${REGION_INFO[1]: :-1}" 
+    echo "root@${REGION_INFO[0]}"
+    for (( i = 0; i < ${#PLAYER_LIST[@]}; i++ )); do
+        ssh -i "$PREDETERMINED_START_POINT+${REGION_INFO[1]: :-1}" "root@${REGION_INFO[0]}" "echo '${WORDLE_LIST[i]}' | sudo passwd --stdin '${PLAYER_LIST[i]}"
+        if [ "$i" -eq 0 ]; then
+            echo "$PLAYER_LIST[i] | $WORDLE_LIST[i]" >> "$SOLUTIONS"
+        fi
+    done
+done < "$REGIONS"
 
-# while IFS= read -r line; do
-#     IFS="|" read -ra RegionInfo <<< "$line"
-#     echo "${RegionInfo[1]: :-1}" 
-#     echo "root@${RegionInfo[0]}"
-#     for (( i = 0; i < ${#PlayerList[@]}; i++ )); do
-#         echo "${PlayerList[i]}"
-#         #ssh -i "$PredeterminedStartPoint+${RegionInfo[1]: :-1}" "root@${RegionInfo[0]}" "echo '${WordleList[i]}' | sudo passwd --stdin '${PlayerList[i]}'"
-#     done
-# done < "$Regions"
-# echo "$PlayerList"
-
+curl -X POST "$DISCORD_INTEGRATION" \
+    -F 'payload_json={"content":"testing"}' \
+    -F "file1=@${SOLUTIONS}"
