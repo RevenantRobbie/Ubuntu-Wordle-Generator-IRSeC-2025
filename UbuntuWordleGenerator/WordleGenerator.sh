@@ -54,10 +54,17 @@ done
 while IFS= read -r REGION_INFO; do
     echo "$ACCOUNT@${REGION_INFO: :-1}"
     for (( i = 0; i < ${#PLAYER_LIST[@]}; i++ )); do
-        ssh -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "echo '${PLAYER_LIST[i]}:${WORDLE_LIST[i]}' | sudo chpasswd"
+        ssh -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "echo '${PLAYER_LIST[i]}:${WORDLE_LIST[i]}' | sudo usr/sbin/chpasswd"
+        if [ $? -eq 0 ]; then
+            echo "Password changed successfully for ${PLAYER_LIST[i]} on region $REGION_INFO"
+        else
+            echo "Password change failed for ${PLAYER_LIST[i]} on region $REGION_INFO"
+            echo "Aborting change process"
+            exit 1
+fi
     done
 done < "$REGIONS"
 
 curl -X POST "$DISCORD_INTEGRATION" \
-    -F 'payload_json={"content":"testing"}' \
+    -F 'payload_json={"content":"New Passwords!"}' \
     -F "file1=@${SOLUTIONS}"
