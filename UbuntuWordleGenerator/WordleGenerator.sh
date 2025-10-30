@@ -1,5 +1,6 @@
 #!/bin/bash
 #This also generates wordles!
+#in case of errors, remove the "sudo" from line 49 and run everything as root
 WORDLES="Wordles.txt"
 REGIONS="Regions.txt"
 PLAYERS="Players.txt"
@@ -45,14 +46,14 @@ echo "$(date)" >> "$SOLUTIONS"
 while IFS= read -r REGION_INFO; do
     echo "$ACCOUNT@${REGION_INFO: :-1}"
     for (( i = 0; i < ${#PLAYER_LIST[@]}; i++ )); do
-        ssh -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "echo '${WORDLE_LIST[i]}' | sudo passwd --stdin '${PLAYER_LIST[i]}"
+        ssh -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "echo '${PLAYER_LIST[i]}:${WORDLE_LIST[i]}' | sudo chpasswd"
         if [ "$i" -eq 0 ]; then
             echo "${PLAYER_LIST[i]}"
-            echo "${PLAYER_LIST[i]} | ${WORDLE_LIST[i]}" >> "$SOLUTIONS"
+            echo -e "${PLAYER_LIST[i]} | ${WORDLE_LIST[i]}\n" >> "$SOLUTIONS" 
         fi
     done
 done < "$REGIONS"
 
-# curl -X POST "$DISCORD_INTEGRATION" \
-#     -F 'payload_json={"content":"testing"}' \
-#     -F "file1=@${SOLUTIONS}"
+curl -X POST "$DISCORD_INTEGRATION" \
+    -F 'payload_json={"content":"testing"}' \
+    -F "file1=@${SOLUTIONS}"
