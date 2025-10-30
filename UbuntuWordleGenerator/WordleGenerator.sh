@@ -31,16 +31,16 @@ done < "$REGIONS"
 #generates wordles for each player
 while IFS= read -r PLAYER;do
     PLAYER_LIST+=("${PLAYER: :-1}")
-    LINE_COUNT=$(wc -l < $WORDLES)
-    RANDOM_NUM=$((RANDOM % $LINE_COUNT + 1))
+    RANDOM_NUM=$((RANDOM % 9000 + 1000))
     WORDLE=$(shuf -n 1 $WORDLES)
     while [[ " ${WORDLE_LIST[*]} " =~ " $WORDLE " ]]; do
         WORDLE=$(shuf -n 1 $WORDLES)
     done
-    WORDLE+="${RANDOM_NUM}"
+    WORDLE="${WORDLE: :-1}${RANDOM_NUM}"
     echo "$WORDLE"
-    WORDLE_LIST+=" $WORDLE"
+    WORDLE_LIST+=("$WORDLE")
 done < "$PLAYERS"
+echo "${WORDLE_LIST[@]}"
 
 # > "$SOLUTIONS"
 # echo "$(date)" >> "$SOLUTIONS"
