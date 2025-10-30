@@ -16,7 +16,7 @@ WORDLE_LIST=()
 CONNECT_TIMEOUT_SECONDS=5
 
 #secures connections to all hosts
-while IFS= read -r LINE; do
+while IFS= read -r REGION_INFO; do
     ssh -o BatchMode=yes -o ConnectTimeout=$CONNECT_TIMEOUT_SECONDS -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "true" &>/dev/null
     #ssh -o BatchMode=yes -o ConnectTimeout=$CONNECT_TIMEOUT_SECONDS -i "$PREDETERMINED_START_PATH+${REGION_INFO[1]: :-1}" "root@${REGION_INFO[0]}" "true" &>/dev/null
     if [ $? -eq 0 ]; then
@@ -28,17 +28,18 @@ while IFS= read -r LINE; do
     fi
 done < "$REGIONS"
 
-# #generates wordles for each player
-# while IFS= read -r PLAYER;do
-#     PLAYER_LIST+=("${PLAYER: :-1}")
-#     LINE_COUNT=$(wc -l < $WORDLES)
-#     RANDOM_NUM=$((RANDOM % $LINE_COUNT + 1))
-#     WORDLE=$(shuf -n 1 $WORDLES)
-#     while [[ " ${WORDLE_LIST[*]} " =~ " $WORDLE " ]]; do
-#         WORDLE=$(shuf -n 1 $WORDLES)
-#     done
-#     WORDLE_LIST+="$WORDLE"
-# done < "$PLAYERS"
+#generates wordles for each player
+while IFS= read -r PLAYER;do
+    PLAYER_LIST+=("${PLAYER: :-1}")
+    LINE_COUNT=$(wc -l < $WORDLES)
+    RANDOM_NUM=$((RANDOM % $LINE_COUNT + 1))
+    WORDLE=$(shuf -n 1 $WORDLES)
+    while [[ " ${WORDLE_LIST[*]} " =~ " $WORDLE " ]]; do
+        WORDLE=$(shuf -n 1 $WORDLES)
+    done
+    echo "$WORDLE"
+    WORDLE_LIST+="$WORDLE"
+done < "$PLAYERS"
 
 # > "$SOLUTIONS"
 # echo "$(date)" >> "$SOLUTIONS"
