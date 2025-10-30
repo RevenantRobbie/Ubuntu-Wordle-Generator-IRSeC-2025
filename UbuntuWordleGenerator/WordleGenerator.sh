@@ -61,7 +61,7 @@ while IFS= read -r REGION_INFO; do
             echo "Password change failed for ${PLAYER_LIST[i]} on region $REGION_INFO"
             echo "Aborting change process"
             exit 1
-fi
+        fi
     done
 done < "$REGIONS"
 
