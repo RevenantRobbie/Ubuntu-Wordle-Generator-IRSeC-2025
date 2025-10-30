@@ -8,18 +8,21 @@ DISCORD_INTEGRATION="https://discord.com/api/webhooks/1433242319058108511/GpOmC2
 echo "Enter path to region storage location"
 read -p "> " KEY_PATH
 echo "Path set to $KEY_PATH"
+echo "Enter account"
+read -p "> " ACCOUNT
+echo "Path set to $ACCOUNT"
 PLAYER_LIST=()
 WORDLE_LIST=()
 CONNECT_TIMEOUT_SECONDS=5
 
 #secures connections to all hosts
 while IFS= read -r LINE; do
-    ssh -o BatchMode=yes -o ConnectTimeout=$CONNECT_TIMEOUT_SECONDS -i "$KEY_PATH" "root@${REGION_INFO: :-1}" "true" &>/dev/null
+    ssh -o BatchMode=yes -o ConnectTimeout=$CONNECT_TIMEOUT_SECONDS -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "true" &>/dev/null
     #ssh -o BatchMode=yes -o ConnectTimeout=$CONNECT_TIMEOUT_SECONDS -i "$PREDETERMINED_START_PATH+${REGION_INFO[1]: :-1}" "root@${REGION_INFO[0]}" "true" &>/dev/null
     if [ $? -eq 0 ]; then
-        echo "${REGION_INFO[0]} connected successfully."
+        echo "${REGION_INFO} connected successfully."
     else
-        echo "!!! UNSUCCESSFUL CONNECTION AT ${REGION_INFO[0]} !!!"
+        echo "!!! UNSUCCESSFUL CONNECTION AT ${REGION_INFO} !!!"
         echo "TERMINATING CONNECTION"
         exit 1
     fi
