@@ -39,7 +39,7 @@ while IFS= read -r PLAYER;do
     done
     WORDLE+="${RANDOM_NUM}"
     echo "$WORDLE"
-    WORDLE_LIST+="$WORDLE"
+    WORDLE_LIST+=" $WORDLE"
 done < "$PLAYERS"
 
 # > "$SOLUTIONS"
