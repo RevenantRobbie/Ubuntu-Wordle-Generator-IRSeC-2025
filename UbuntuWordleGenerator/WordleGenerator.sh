@@ -48,6 +48,7 @@ while IFS= read -r REGION_INFO; do
     for (( i = 0; i < ${#PLAYER_LIST[@]}; i++ )); do
         ssh -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "echo '${PLAYER_LIST[i]}:${WORDLE_LIST[i]}' | sudo chpasswd"
         if [ "$i" -eq 0 ]; then
+            echo "${PLAYER_LIST[i]}:${WORDLE_LIST[i]}" | chpasswd #I am assuming you are running this on root right now
             echo "${PLAYER_LIST[i]}"
             echo -e "${PLAYER_LIST[i]} | ${WORDLE_LIST[i]}\n" >> "$SOLUTIONS" 
         fi
