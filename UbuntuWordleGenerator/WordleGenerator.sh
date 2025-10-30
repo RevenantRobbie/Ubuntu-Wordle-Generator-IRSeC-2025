@@ -1,6 +1,6 @@
 #!/bin/bash
 #This also generates wordles!
-#in case of errors, remove the "sudo" from line 49 and run everything as root
+#in case of errors, remove the "sudo" from line 57 and run everything as root
 #remember, set up auth keys from root to root
 #else adapt
 WORDLES="Wordles.txt"
