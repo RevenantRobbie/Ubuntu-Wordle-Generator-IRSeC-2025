@@ -37,6 +37,7 @@ while IFS= read -r PLAYER;do
     while [[ " ${WORDLE_LIST[*]} " =~ " $WORDLE " ]]; do
         WORDLE=$(shuf -n 1 $WORDLES)
     done
+    WORDLE+="$RANDOM_NUM"
     echo "$WORDLE"
     WORDLE_LIST+="$WORDLE"
 done < "$PLAYERS"
