@@ -37,24 +37,21 @@ while IFS= read -r PLAYER;do
         WORDLE=$(shuf -n 1 $WORDLES)
     done
     WORDLE="${WORDLE: :-1}${RANDOM_NUM}"
-    echo "$WORDLE"
     WORDLE_LIST+=("$WORDLE")
 done < "$PLAYERS"
-echo "${WORDLE_LIST[@]}"
 
-# > "$SOLUTIONS"
-# echo "$(date)" >> "$SOLUTIONS"
-# while IFS= read -r LINE; do
-#     IFS="|" read -ra REGION_INFO <<< "$LINE"
-#     echo "${REGION_INFO[1]: :-1}" 
-#     echo "root@${REGION_INFO[0]}"
-#     for (( i = 0; i < ${#PLAYER_LIST[@]}; i++ )); do
-#         ssh -i "$PREDETERMINED_START_POINT+${REGION_INFO[1]: :-1}" "root@${REGION_INFO[0]}" "echo '${WORDLE_LIST[i]}' | sudo passwd --stdin '${PLAYER_LIST[i]}"
-#         if [ "$i" -eq 0 ]; then
-#             echo "$PLAYER_LIST[i] | $WORDLE_LIST[i]" >> "$SOLUTIONS"
-#         fi
-#     done
-# done < "$REGIONS"
+> "$SOLUTIONS"
+echo "$(date)" >> "$SOLUTIONS"
+while IFS= read -r REGION_INFO; do
+    echo "$ACCOUNT@${REGION_INFO: :-1}"
+    for (( i = 0; i < ${#PLAYER_LIST[@]}; i++ )); do
+        ssh -i "$KEY_PATH" "$ACCOUNT@${REGION_INFO: :-1}" "echo '${WORDLE_LIST[i]}' | sudo passwd --stdin '${PLAYER_LIST[i]}"
+        if [ "$i" -eq 0 ]; then
+            echo "${PLAYER_LIST[i]}"
+            echo "${PLAYER_LIST[i]} | ${WORDLE_LIST[i]}" >> "$SOLUTIONS"
+        fi
+    done
+done < "$REGIONS"
 
 # curl -X POST "$DISCORD_INTEGRATION" \
 #     -F 'payload_json={"content":"testing"}' \
